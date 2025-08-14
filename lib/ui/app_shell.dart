@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme.dart';
 import 'dotted_background.dart';
 import 'section_stub.dart';
+import 'pages/portfolio/portfolio_page.dart';
 
 class AppShell extends StatefulWidget {
   static const route = '/app';
@@ -14,11 +15,12 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   int _index = 0;
 
-  static final _pages = <Widget>[
-    const SectionStub(title: 'Portfolio'),
-    const SectionStub(title: 'Market'),
-    const SectionStub(title: 'Prop Bets'),
-    const SectionStub(title: 'Account'),
+  // Build pages each time so hot reload applies changes.
+  List<Widget> get _pages => const [
+    PortfolioPage(key: ValueKey('portfolio')),
+    SectionStub(title: 'Market'),
+    SectionStub(title: 'Prop Bets'),
+    SectionStub(title: 'Account'),
   ];
 
   @override
