@@ -1,5 +1,9 @@
+import 'package:cbb_bluechips_mobile/ui/pages/account/account_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/rules/rules_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/faq/faq_page.dart';
+import 'package:cbb_bluechips_mobile/ui/pages/settings/settings_page.dart';
+import 'package:cbb_bluechips_mobile/ui/pages/support/support_page.dart';
+import 'package:cbb_bluechips_mobile/ui/pages/transactions/transactions_page.dart';
 import 'package:flutter/material.dart';
 import 'theme.dart';
 import 'ui/splash_screen.dart';
@@ -17,7 +21,7 @@ class CbbBlueChipsApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'CBB Blue Chips',
+      title: 'CBB BlueChips',
       debugShowCheckedModeBanner: false,
       theme: buildTheme(),
       home: const SplashScreen(),
@@ -25,12 +29,13 @@ class CbbBlueChipsApp extends StatelessWidget {
         AppShell.route: (_) => const AppShell(),
         RulesPage.route: (_) => const RulesPage(),
         FAQPage.route: (_) => const FAQPage(),
-
+        AccountPage.route: (_) => const AccountPage(),
+        TransactionsPage.route: (_) => const TransactionsPage(),
+        SupportPage.route: (_) => const SupportPage(),
+        SettingsPage.route: (_) => const SettingsPage(),
+        
         // Stubs
-        '/transactions': (_) => const SectionStub(title: 'Transactions'),
         '/calculator': (_) => const SectionStub(title: 'Calculator'),
-        '/settings': (_) => const SectionStub(title: 'Settings'),
-        '/support': (_) => const SectionStub(title: 'Support'),
         '/about': (_) => const SectionStub(title: 'About'),
       },
     );

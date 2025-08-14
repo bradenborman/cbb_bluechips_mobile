@@ -1,3 +1,4 @@
+import 'package:cbb_bluechips_mobile/ui/pages/account/account_page.dart';
 import 'package:flutter/material.dart';
 import '../theme.dart';
 import 'dotted_background.dart';
@@ -20,7 +21,7 @@ class _AppShellState extends State<AppShell> {
     PortfolioPage(key: ValueKey('portfolio')),
     SectionStub(title: 'Market'),
     SectionStub(title: 'Prop Bets'),
-    SectionStub(title: 'Account'),
+    AccountPage()
   ];
 
   @override
