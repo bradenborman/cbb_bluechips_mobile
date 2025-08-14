@@ -1,3 +1,5 @@
+import 'package:cbb_bluechips_mobile/ui/pages/rules/rules_page.dart';
+import 'package:cbb_bluechips_mobile/ui/pages/faq/faq_page.dart';
 import 'package:flutter/material.dart';
 import 'theme.dart';
 import 'ui/splash_screen.dart';
@@ -21,11 +23,12 @@ class CbbBlueChipsApp extends StatelessWidget {
       home: const SplashScreen(),
       routes: {
         AppShell.route: (_) => const AppShell(),
+        RulesPage.route: (_) => const RulesPage(),
+        FAQPage.route: (_) => const FAQPage(),
 
+        // Stubs
         '/transactions': (_) => const SectionStub(title: 'Transactions'),
-        '/rules': (_) => const SectionStub(title: 'Rules'),
         '/calculator': (_) => const SectionStub(title: 'Calculator'),
-        '/faq': (_) => const SectionStub(title: 'FAQ'),
         '/settings': (_) => const SectionStub(title: 'Settings'),
         '/support': (_) => const SectionStub(title: 'Support'),
         '/about': (_) => const SectionStub(title: 'About'),
