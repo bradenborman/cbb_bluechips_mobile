@@ -1,4 +1,5 @@
 import 'package:cbb_bluechips_mobile/ui/pages/account/account_page.dart';
+import 'package:cbb_bluechips_mobile/ui/pages/market/market_page.dart';
 import 'package:flutter/material.dart';
 import '../theme.dart';
 import 'dotted_background.dart';
@@ -19,7 +20,7 @@ class _AppShellState extends State<AppShell> {
   // Build pages each time so hot reload applies changes.
   List<Widget> get _pages => const [
     PortfolioPage(key: ValueKey('portfolio')),
-    SectionStub(title: 'Market'),
+    MarketPage(),
     SectionStub(title: 'Prop Bets'),
     AccountPage()
   ];

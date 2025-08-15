@@ -1,5 +1,6 @@
 import 'package:cbb_bluechips_mobile/ui/pages/about/about_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/account/account_page.dart';
+import 'package:cbb_bluechips_mobile/ui/pages/market/market_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/rules/rules_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/faq/faq_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/settings/settings_page.dart';
@@ -35,8 +36,7 @@ class CbbBlueChipsApp extends StatelessWidget {
         SupportPage.route: (_) => const SupportPage(),
         SettingsPage.route: (_) => const SettingsPage(),
         AboutPage.route: (_) => const AboutPage(),
-        
-        // Stubs
+
         '/calculator': (_) => const SectionStub(title: 'Calculator'),
       },
     );

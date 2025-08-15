@@ -6,7 +6,6 @@ class LegalContactList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = Theme.of(context).textTheme.bodyMedium;
     final link = Theme.of(context).textTheme.bodyMedium?.copyWith(
       color: Theme.of(context).colorScheme.primary,
       decoration: TextDecoration.underline,
