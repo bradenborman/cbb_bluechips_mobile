@@ -1,6 +1,8 @@
 import 'package:cbb_bluechips_mobile/ui/pages/account/account_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/market/market_page.dart';
+import 'package:cbb_bluechips_mobile/ui/pages/how_to_play/how_to_play_page.dart';
 import 'package:flutter/material.dart';
+
 import '../theme.dart';
 import 'dotted_background.dart';
 import 'section_stub.dart';
@@ -17,12 +19,12 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   int _index = 0;
 
-  // Build pages each time so hot reload applies changes.
-  List<Widget> get _pages => const [
-    PortfolioPage(key: ValueKey('portfolio')),
-    MarketPage(),
+  // Keep this non-const so pages that don't have const constructors won't error.
+  List<Widget> get _pages => [
+    const PortfolioPage(key: ValueKey('portfolio')),
+    const MarketPage(),
     SectionStub(title: 'Prop Bets'),
-    AccountPage()
+    const HowToPlayPage(), // <-- Now the 4th (last) tab
   ];
 
   @override
@@ -63,7 +65,10 @@ class _AppShellState extends State<AppShell> {
               icon: Icon(Icons.sports_basketball),
               label: 'Props',
             ),
-            NavigationDestination(icon: Icon(Icons.person), label: 'Account'),
+            NavigationDestination(
+              icon: Icon(Icons.menu_book), // or Icons.school
+              label: 'How to Play', // <-- Last item
+            ),
           ],
         ),
       ),
@@ -81,7 +86,11 @@ class _AppShellState extends State<AppShell> {
       builder: (context) {
         final items = <_MoreItem>[
           _MoreItem('Transactions', Icons.receipt_long, '/transactions'),
-          _MoreItem('Rules', Icons.menu_book, '/rules'),
+          _MoreItem(
+            'Account',
+            Icons.person,
+            AccountPage.route,
+          ), // <-- moved here
           _MoreItem('Calculator', Icons.calculate, '/calculator'),
           _MoreItem('FAQ', Icons.help_center, '/faq'),
           _MoreItem('Settings', Icons.settings, '/settings'),

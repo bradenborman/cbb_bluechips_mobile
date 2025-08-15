@@ -1,8 +1,7 @@
 import 'package:cbb_bluechips_mobile/ui/pages/about/about_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/account/account_page.dart';
-import 'package:cbb_bluechips_mobile/ui/pages/market/market_page.dart';
-import 'package:cbb_bluechips_mobile/ui/pages/rules/rules_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/faq/faq_page.dart';
+import 'package:cbb_bluechips_mobile/ui/pages/how_to_play/how_to_play_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/settings/settings_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/support/support_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/transactions/transactions_page.dart';
@@ -29,7 +28,7 @@ class CbbBlueChipsApp extends StatelessWidget {
       home: const SplashScreen(),
       routes: {
         AppShell.route: (_) => const AppShell(),
-        RulesPage.route: (_) => const RulesPage(),
+        HowToPlayPage.route: (context) => const HowToPlayPage(),
         FAQPage.route: (_) => const FAQPage(),
         AccountPage.route: (_) => const AccountPage(),
         TransactionsPage.route: (_) => const TransactionsPage(),
