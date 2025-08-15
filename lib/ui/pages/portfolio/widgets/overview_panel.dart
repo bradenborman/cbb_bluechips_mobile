@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../models.dart';
-import 'portfolio_field.dart';
 
 class OverviewPanel extends StatelessWidget {
   final int leaderboardPosition;
