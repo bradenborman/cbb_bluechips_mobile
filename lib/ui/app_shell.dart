@@ -1,4 +1,5 @@
 import 'package:cbb_bluechips_mobile/ui/pages/account/account_page.dart';
+import 'package:cbb_bluechips_mobile/ui/pages/leaderboard/leaderboard_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/market/market_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/how_to_play/how_to_play_page.dart';
 import 'package:flutter/material.dart';
@@ -23,8 +24,8 @@ class _AppShellState extends State<AppShell> {
   List<Widget> get _pages => [
     const PortfolioPage(key: ValueKey('portfolio')),
     const MarketPage(),
-    SectionStub(title: 'Prop Bets'),
-    const HowToPlayPage(), // <-- Now the 4th (last) tab
+    const LeaderboardPage(), // <— replaced Props with Leaderboard
+    const HowToPlayPage(),
   ];
 
   @override
@@ -62,12 +63,12 @@ class _AppShellState extends State<AppShell> {
               label: 'Market',
             ),
             NavigationDestination(
-              icon: Icon(Icons.sports_basketball),
-              label: 'Props',
+              icon: Icon(Icons.emoji_events), // Trophy for leaderboard
+              label: 'Leaderboard',
             ),
             NavigationDestination(
-              icon: Icon(Icons.menu_book), // or Icons.school
-              label: 'How to Play', // <-- Last item
+              icon: Icon(Icons.menu_book),
+              label: 'How to Play',
             ),
           ],
         ),
@@ -86,11 +87,7 @@ class _AppShellState extends State<AppShell> {
       builder: (context) {
         final items = <_MoreItem>[
           _MoreItem('Transactions', Icons.receipt_long, '/transactions'),
-          _MoreItem(
-            'Account',
-            Icons.person,
-            AccountPage.route,
-          ), // <-- moved here
+          _MoreItem('Account', Icons.person, AccountPage.route),
           _MoreItem('Calculator', Icons.calculate, '/calculator'),
           _MoreItem('FAQ', Icons.help_center, '/faq'),
           _MoreItem('Settings', Icons.settings, '/settings'),

@@ -2,6 +2,7 @@ import 'package:cbb_bluechips_mobile/ui/pages/about/about_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/account/account_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/faq/faq_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/how_to_play/how_to_play_page.dart';
+import 'package:cbb_bluechips_mobile/ui/pages/leaderboard/leaderboard_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/settings/settings_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/support/support_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/transactions/transactions_page.dart';
@@ -22,20 +23,23 @@ class CbbBlueChipsApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'CBB BlueChips',
+      title: 'CBB Blue Chips',
       debugShowCheckedModeBanner: false,
       theme: buildTheme(),
       home: const SplashScreen(),
       routes: {
         AppShell.route: (_) => const AppShell(),
-        HowToPlayPage.route: (context) => const HowToPlayPage(),
+
+        HowToPlayPage.route: (_) => const HowToPlayPage(),
         FAQPage.route: (_) => const FAQPage(),
         AccountPage.route: (_) => const AccountPage(),
         TransactionsPage.route: (_) => const TransactionsPage(),
         SupportPage.route: (_) => const SupportPage(),
         SettingsPage.route: (_) => const SettingsPage(),
         AboutPage.route: (_) => const AboutPage(),
+        LeaderboardPage.route: (_) => const LeaderboardPage(),
 
+        // Stubs
         '/calculator': (_) => const SectionStub(title: 'Calculator'),
       },
     );
