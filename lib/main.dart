@@ -1,3 +1,4 @@
+import 'package:cbb_bluechips_mobile/services/auth/auth_gate.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/about/about_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/account/account_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/faq/faq_page.dart';
@@ -12,13 +13,27 @@ import 'ui/splash_screen.dart';
 import 'ui/app_shell.dart';
 import 'ui/section_stub.dart';
 
+import 'services/auth/auth_repository_mock.dart';
+import 'services/auth/auth_controller.dart';
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const CbbBlueChipsApp());
 }
 
-class CbbBlueChipsApp extends StatelessWidget {
+class CbbBlueChipsApp extends StatefulWidget {
   const CbbBlueChipsApp({super.key});
+
+  @override
+  State<CbbBlueChipsApp> createState() => _CbbBlueChipsAppState();
+}
+
+class _CbbBlueChipsAppState extends State<CbbBlueChipsApp> {
+  // Mock auth controller
+  late final AuthController _auth = AuthController(const AuthRepositoryMock());
+
+  // Navigator key so we can navigate without a BuildContext tied to a Navigator
+  final GlobalKey<NavigatorState> _navKey = GlobalKey<NavigatorState>();
 
   @override
   Widget build(BuildContext context) {
@@ -26,10 +41,20 @@ class CbbBlueChipsApp extends StatelessWidget {
       title: 'CBB Blue Chips',
       debugShowCheckedModeBanner: false,
       theme: buildTheme(),
-      home: const SplashScreen(),
+      navigatorKey: _navKey,
+      home: SplashScreen(
+        onDone: () async {
+          // Rehydrate any saved mock session before showing the gate
+          await _auth.init();
+
+          // Use the navigatorKey instead of Navigator.of(context)
+          _navKey.currentState?.pushReplacement(
+            MaterialPageRoute(builder: (_) => AuthGate(controller: _auth)),
+          );
+        },
+      ),
       routes: {
         AppShell.route: (_) => const AppShell(),
-
         HowToPlayPage.route: (_) => const HowToPlayPage(),
         FAQPage.route: (_) => const FAQPage(),
         AccountPage.route: (_) => const AccountPage(),
@@ -38,8 +63,6 @@ class CbbBlueChipsApp extends StatelessWidget {
         SettingsPage.route: (_) => const SettingsPage(),
         AboutPage.route: (_) => const AboutPage(),
         LeaderboardPage.route: (_) => const LeaderboardPage(),
-
-        // Stubs
         '/calculator': (_) => const SectionStub(title: 'Calculator'),
       },
     );

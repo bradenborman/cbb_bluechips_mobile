@@ -1,12 +1,12 @@
+import 'package:cbb_bluechips_mobile/services/auth/auth_gate.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/account/account_page.dart';
+import 'package:cbb_bluechips_mobile/ui/pages/how_to_play/how_to_play_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/leaderboard/leaderboard_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/market/market_page.dart';
-import 'package:cbb_bluechips_mobile/ui/pages/how_to_play/how_to_play_page.dart';
 import 'package:flutter/material.dart';
 
 import '../theme.dart';
 import 'dotted_background.dart';
-import 'section_stub.dart';
 import 'pages/portfolio/portfolio_page.dart';
 
 class AppShell extends StatefulWidget {
@@ -20,11 +20,11 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   int _index = 0;
 
-  // Keep this non-const so pages that don't have const constructors won't error.
+  // Keep this non-const so pages without const constructors won't error.
   List<Widget> get _pages => [
     const PortfolioPage(key: ValueKey('portfolio')),
     const MarketPage(),
-    const LeaderboardPage(), // <— replaced Props with Leaderboard
+    const LeaderboardPage(),
     const HowToPlayPage(),
   ];
 
@@ -63,7 +63,7 @@ class _AppShellState extends State<AppShell> {
               label: 'Market',
             ),
             NavigationDestination(
-              icon: Icon(Icons.emoji_events), // Trophy for leaderboard
+              icon: Icon(Icons.emoji_events),
               label: 'Leaderboard',
             ),
             NavigationDestination(
@@ -77,6 +77,9 @@ class _AppShellState extends State<AppShell> {
   }
 
   void _openMore() {
+    // Grab the controller BEFORE pushing a new route (bottom sheet)
+    final auth = AuthScope.of(context, listen: false);
+
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.surface,
@@ -84,7 +87,7 @@ class _AppShellState extends State<AppShell> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
       ),
-      builder: (context) {
+      builder: (sheetCtx) {
         final items = <_MoreItem>[
           _MoreItem('Transactions', Icons.receipt_long, '/transactions'),
           _MoreItem('Account', Icons.person, AccountPage.route),
@@ -96,22 +99,39 @@ class _AppShellState extends State<AppShell> {
         ];
 
         return SafeArea(
-          child: ListView.separated(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: items.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
-            itemBuilder: (context, i) {
-              final it = items[i];
-              return ListTile(
-                leading: Icon(it.icon, color: AppColors.ice),
-                title: Text(it.title),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, it.route);
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  itemCount: items.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (context, i) {
+                    final it = items[i];
+                    return ListTile(
+                      leading: Icon(it.icon, color: AppColors.ice),
+                      title: Text(it.title),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () {
+                        Navigator.pop(sheetCtx);
+                        Navigator.pushNamed(context, it.route);
+                      },
+                    );
+                  },
+                ),
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.logout, color: Colors.redAccent),
+                title: const Text('Log out'),
+                onTap: () async {
+                  Navigator.pop(sheetCtx); // close the sheet
+                  await auth.signOut(); // uses the captured controller
+                  // AuthGate will rebuild to LoginPage automatically
                 },
-              );
-            },
+              ),
+            ],
           ),
         );
       },
