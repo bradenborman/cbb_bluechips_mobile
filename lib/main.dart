@@ -29,8 +29,8 @@ class CbbBlueChipsApp extends StatefulWidget {
 }
 
 class _CbbBlueChipsAppState extends State<CbbBlueChipsApp> {
-  // Mock auth controller
-  late final AuthController _auth = AuthController(const AuthRepositoryMock());
+  // Mock auth controller (no init/persistence in this version)
+  late final AuthController _auth = AuthController(AuthRepositoryMock());
 
   // Navigator key so we can navigate without a BuildContext tied to a Navigator
   final GlobalKey<NavigatorState> _navKey = GlobalKey<NavigatorState>();
@@ -43,11 +43,8 @@ class _CbbBlueChipsAppState extends State<CbbBlueChipsApp> {
       theme: buildTheme(),
       navigatorKey: _navKey,
       home: SplashScreen(
-        onDone: () async {
-          // Rehydrate any saved mock session before showing the gate
-          await _auth.init();
-
-          // Use the navigatorKey instead of Navigator.of(context)
+        onDone: () {
+          // No _auth.init() in this mock — just go to the AuthGate
           _navKey.currentState?.pushReplacement(
             MaterialPageRoute(builder: (_) => AuthGate(controller: _auth)),
           );

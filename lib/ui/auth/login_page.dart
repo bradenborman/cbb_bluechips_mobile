@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../theme.dart';
 import 'package:cbb_bluechips_mobile/services/auth/auth_gate.dart';
@@ -17,6 +16,7 @@ class _LoginPageState extends State<LoginPage>
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _busyApple = false;
+  bool _busyGoogle = false;
   bool _busyEmail = false;
   bool _showEmail = false;
   String? _error;
@@ -35,9 +35,7 @@ class _LoginPageState extends State<LoginPage>
       _error = null;
     });
     try {
-      // Stubbed Apple login: creates an 8-hour session
-      await auth.signInWithApple();
-      // AuthGate will switch to AppShell automatically
+      await auth.signInWithApple(); // stubbed 8h session
     } catch (e) {
       setState(() => _error = e.toString());
     } finally {
@@ -45,17 +43,30 @@ class _LoginPageState extends State<LoginPage>
     }
   }
 
+  Future<void> _googleSignIn() async {
+    final auth = AuthScope.of(context, listen: false);
+    setState(() {
+      _busyGoogle = true;
+      _error = null;
+    });
+    try {
+      await auth.signInWithGoogle(); // stubbed 8h session
+    } catch (e) {
+      setState(() => _error = e.toString());
+    } finally {
+      if (mounted) setState(() => _busyGoogle = false);
+    }
+  }
+
   Future<void> _emailSubmit() async {
     final auth = AuthScope.of(context, listen: false);
     if (!(_form.currentState?.validate() ?? false)) return;
-
     setState(() {
       _busyEmail = true;
       _error = null;
     });
     try {
       await auth.signIn(_email.text.trim(), _password.text);
-      // AuthGate will switch to AppShell automatically
     } catch (e) {
       setState(() => _error = e.toString());
     } finally {
@@ -117,12 +128,12 @@ class _LoginPageState extends State<LoginPage>
                       ),
                     ),
 
-                  // Sign in with Apple (primary — stubbed)
+                  // Apple (primary — stub)
                   SizedBox(
                     height: 48,
                     child: FilledButton.icon(
                       onPressed: _busyApple ? null : _appleSignIn,
-                      icon: const Text("", style: TextStyle(fontSize: 20)),
+                      icon: const Text('', style: TextStyle(fontSize: 20)),
                       label: _busyApple
                           ? const SizedBox(
                               height: 18,
@@ -131,6 +142,30 @@ class _LoginPageState extends State<LoginPage>
                             )
                           : const Text('Sign in with Apple'),
                       style: FilledButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Google (stub) — white background, outlined style
+                  SizedBox(
+                    height: 48,
+                    child: OutlinedButton.icon(
+                      onPressed: _busyGoogle ? null : _googleSignIn,
+                      icon: _GoogleLogo(), // asset with graceful fallback
+                      label: _busyGoogle
+                          ? const SizedBox(
+                              height: 18,
+                              width: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Sign in with Google'),
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        side: BorderSide(color: onSurface.withOpacity(0.12)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -217,6 +252,19 @@ class _LoginPageState extends State<LoginPage>
           ),
         ),
       ),
+    );
+  }
+}
+
+class _GoogleLogo extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // Try to load asset; if missing, fall back to a generic icon
+    return Image.asset(
+      'assets/icons/google_g.png',
+      width: 20,
+      height: 20,
+      errorBuilder: (_, __, ___) => const Icon(Icons.mail_outline, size: 20),
     );
   }
 }
