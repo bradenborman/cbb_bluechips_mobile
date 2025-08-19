@@ -16,6 +16,9 @@ dependencies:
   http: ^1.2.2
   web_socket_channel: ^2.4.5
   shared_preferences: ^2.3.2
+  dio: ^5.5.0
+  flutter_secure_storage: ^9.2.2
+  connectivity_plus: ^6.0.5
 
 dev_dependencies:
   flutter_test:
@@ -23,7 +26,7 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   flutter_native_splash: ^2.4.6
   flutter_launcher_icons: ^0.14.4
-
+  build_runner: ^2.4.11
 
 flutter:
   uses-material-design: true
