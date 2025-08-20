@@ -1,3 +1,4 @@
+import 'package:cbb_bluechips_mobile/models/models.dart';
 import 'package:flutter/material.dart';
 import 'models.dart';
 import 'widgets/settings_section.dart';
@@ -129,6 +130,9 @@ class _AccountPageState extends State<AccountPage> {
           ],
         );
         break;
+      case RequestStatus.success:
+        // TODO: Handle this case.
+        throw UnimplementedError();
     }
 
     return Scaffold(

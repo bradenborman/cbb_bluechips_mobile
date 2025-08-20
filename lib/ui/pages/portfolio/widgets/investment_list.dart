@@ -1,118 +1,101 @@
 import 'package:flutter/material.dart';
+import '../../../../models/models.dart';
 
 class InvestmentList extends StatelessWidget {
-  const InvestmentList({super.key});
+  final List<Investment> items;
+  final void Function(Investment)? onTap;
+
+  const InvestmentList({super.key, this.items = const [], this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final items = const [
-      _InvestmentRow(
-        ticker: 'MIZ',
-        name: 'Missouri',
-        qty: 12,
-        value: 24500,
-        changePct: 3.4,
-      ),
-      _InvestmentRow(
-        ticker: 'FLR',
-        name: 'Florida',
-        qty: 5,
-        value: 9800,
-        changePct: -1.2,
-      ),
-      _InvestmentRow(
-        ticker: 'TEX',
-        name: 'Texas',
-        qty: 2,
-        value: 5600,
-        changePct: 0.9,
-      ),
-    ];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Investments',
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+    if (items.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Text(
+          'No active investments',
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
-        const SizedBox(height: 8),
-        ...items,
-      ],
+      );
+    }
+
+    return Column(
+      children: items
+          .map((it) => _InvestmentRow(inv: it, onTap: onTap))
+          .toList(),
     );
   }
 }
 
 class _InvestmentRow extends StatelessWidget {
-  final String ticker;
-  final String name;
-  final int qty;
-  final int value;
-  final double changePct;
+  final Investment inv;
+  final void Function(Investment)? onTap;
+  const _InvestmentRow({required this.inv, this.onTap});
 
-  const _InvestmentRow({
-    required this.ticker,
-    required this.name,
-    required this.qty,
-    required this.value,
-    required this.changePct,
-  });
+  String _fmt(num v) {
+    final s = v.toInt().toString();
+    final b = StringBuffer();
+    for (int i = 0; i < s.length; i++) {
+      final idx = s.length - i;
+      b.write(s[i]);
+      if (idx > 1 && idx % 3 == 1) b.write(',');
+    }
+    return b.toString();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final changeColor = changePct >= 0 ? Colors.green : Colors.red;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: Theme.of(context).colorScheme.surfaceVariant,
-            ),
-            child: Text(
-              ticker,
-              style: const TextStyle(fontWeight: FontWeight.w800),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  '$qty units',
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '\$${value.toString()}',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
+    final seedText = inv.seed.isNotEmpty ? ' (${inv.seed})' : '';
+    final initials =
+        (inv.teamName.length >= 3 ? inv.teamName.substring(0, 3) : inv.teamName)
+            .toUpperCase();
+
+    return InkWell(
+      onTap: onTap == null ? null : () => onTap!(inv),
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Theme.of(context).colorScheme.surfaceContainerHigh,
               ),
-              Text(
-                '${changePct.toStringAsFixed(1)}%',
-                style: TextStyle(color: changeColor),
+              child: Text(
+                initials,
+                style: const TextStyle(fontWeight: FontWeight.w800),
               ),
-            ],
-          ),
-        ],
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${inv.teamName}$seedText',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    '${inv.amountOwned} shares',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+            Text(
+              _fmt(inv.marketPrice),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
       ),
     );
   }

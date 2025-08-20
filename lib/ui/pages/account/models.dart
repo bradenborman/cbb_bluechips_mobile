@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-enum RequestStatus { loading, idle, error }
 enum SignInProvider { credentials, google }
 
 enum DisplayNameStrategy {
