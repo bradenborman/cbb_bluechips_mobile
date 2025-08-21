@@ -1,236 +1,124 @@
 import 'package:flutter/material.dart';
-import '../models.dart';
+import 'package:cbb_bluechips_mobile/models/market.dart';
 
-/// Stacked game tile:
-/// [Header]
-/// [Top team block]
-/// [  centered ± spread pill  ]
-/// [Bottom team block]
-///
-/// - Favorite tag only on the negative-spread team
-/// - Price (unlabeled) then "Owned ####" under each name
-/// - Score sits at the far right of each team block
-/// - No Point Speed or extra icons on the card
+import 'date_label.dart';
+import 'team_row.dart';
+import 'vs_chip.dart';
+import 'spread_pill.dart'; // <-- new
+
 class MatchCard extends StatelessWidget {
-  final GameResult game;
-  final void Function(TeamResult team, double pointSpeed) onTapTeam;
-
-  const MatchCard({super.key, required this.game, required this.onTapTeam});
+  final Match match;
+  const MatchCard({super.key, required this.match});
 
   @override
   Widget build(BuildContext context) {
-    final played = formatShortTime(game.playedAt);
-    final spreadMag = game.centerSpreadMagnitude;
-    final dividerColor = Theme.of(context).dividerColor.withOpacity(0.18);
+    final cs = Theme.of(context).colorScheme;
+    final started = match.startTime;
 
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: Theme.of(context).dividerColor.withOpacity(0.20),
-        ),
+        color: cs.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: cs.outlineVariant),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 14,
+            spreadRadius: 0,
+            offset: const Offset(0, 6),
+            color: Colors.black.withValues(alpha: 0.08),
+          ),
+        ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Header
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: const Text(
-                    'Final',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                ),
-                const Spacer(),
-                const Icon(Icons.schedule, size: 16),
-                const SizedBox(width: 6),
-                Text(
-                  played,
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                ),
-              ],
-            ),
-
-            // New subtle divider so the top team doesn't feel larger
-            const SizedBox(height: 10),
-            Container(height: 1, color: dividerColor),
-            const SizedBox(height: 10),
-
-            // Top team (away)
-            _TeamRow(
-              team: game.away,
-              isHome: false,
-              isFavorite: game.away.isFavorite,
-              score: game.away.finalScore,
-              priceText: formatMoney(game.away.marketPrice),
-              ownedText: 'Owned ${game.away.totalSharesOwned}',
-              onTap: () => onTapTeam(game.away, game.pointSpeedFor(game.away)),
-            ),
-
-            const SizedBox(height: 10),
-
-            // Center "not-a-line" ± spread
-            Align(
-              alignment: Alignment.center,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(999),
-                  border: Border.all(color: Colors.black.withOpacity(0.10)),
-                ),
-                child: Text(
-                  '± ${formatSpread(spreadMag)}',
-                  style: const TextStyle(fontWeight: FontWeight.w700),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            // Bottom team (home)
-            _TeamRow(
-              team: game.home,
-              isHome: true,
-              isFavorite: game.home.isFavorite,
-              score: game.home.finalScore,
-              priceText: formatMoney(game.home.marketPrice),
-              ownedText: 'Owned ${game.home.totalSharesOwned}',
-              onTap: () => onTapTeam(game.home, game.pointSpeedFor(game.home)),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _TeamRow extends StatelessWidget {
-  final TeamResult team;
-  final bool isHome;
-  final bool isFavorite;
-  final int score;
-  final String priceText;
-  final String ownedText;
-  final VoidCallback onTap;
-
-  const _TeamRow({
-    required this.team,
-    required this.isHome,
-    required this.isFavorite,
-    required this.score,
-    required this.priceText,
-    required this.ownedText,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(10),
-      onTap: onTap,
-      child: Row(
+      padding: const EdgeInsets.all(14),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Avatar
-          CircleAvatar(
-            radius: 16,
-            backgroundImage: AssetImage(team.logoAsset),
-            onBackgroundImageError: (_, __) {},
+          // Top row: date + status pill
+          Row(
+            children: [
+              Expanded(
+                child: DateLabel(
+                  dateTime: started,
+                  fallback: match.completed ? 'Final' : 'TBD',
+                ),
+              ),
+              _StatusPill(text: match.completed ? 'Completed' : 'Open'),
+            ],
           ),
-          const SizedBox(width: 10),
+          const SizedBox(height: 12),
 
-          // Name + price/owned
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Single-line name with optional "(Home)" and Favorite pill
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        isHome ? '${team.name} (Home)' : team.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    if (isFavorite) ...[
-                      const SizedBox(width: 8),
-                      _favoritePill(context),
-                    ],
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  priceText,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  ownedText,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-              ],
-            ),
+          // Home team row
+          TeamRow(
+            team: match.homeTeam,
+            onTap: () => _tapSnack(context, match.homeTeam.teamName),
+          ),
+          const SizedBox(height: 6),
+          SpreadPill(
+            teamId: match.homeTeam.teamId,
+            favoriteTeamId: match.favoriteTeamId,
+            underdogTeamId: match.underdogTeamId,
+            pointSpread: match.pointSpread,
           ),
 
-          const SizedBox(width: 8),
+          const SizedBox(height: 10),
 
-          // Score rail (right aligned)
-          Text(
-            score.toString(),
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+          // Centered "VS"
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [VsChip()],
+          ),
+
+          const SizedBox(height: 10),
+
+          // Away team row
+          TeamRow(
+            team: match.awayTeam,
+            onTap: () => _tapSnack(context, match.awayTeam.teamName),
+          ),
+          const SizedBox(height: 6),
+          SpreadPill(
+            teamId: match.awayTeam.teamId,
+            favoriteTeamId: match.favoriteTeamId,
+            underdogTeamId: match.underdogTeamId,
+            pointSpread: match.pointSpread,
           ),
         ],
       ),
     );
   }
 
-  Widget _favoritePill(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
+  void _tapSnack(BuildContext context, String teamName) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Buy/Sell for $teamName coming next'),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(milliseconds: 1200),
+      ),
+    );
+  }
+}
+
+class _StatusPill extends StatelessWidget {
+  final String text;
+  const _StatusPill({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final bool isCompleted = text.toLowerCase().startsWith('comp');
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: primary.withOpacity(0.14), // subtle tint
+        color: isCompleted ? cs.tertiaryContainer : cs.primaryContainer,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: primary.withOpacity(0.38)), // clearer edge
+        border: Border.all(color: cs.outlineVariant),
       ),
       child: Text(
-        'Favorite',
-        maxLines: 1,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w800, // slight emphasis
-          color: primary,
-          letterSpacing: 0.2,
+        text,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+          color: isCompleted ? cs.onTertiaryContainer : cs.onPrimaryContainer,
+          fontWeight: FontWeight.w800,
         ),
       ),
     );

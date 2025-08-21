@@ -222,7 +222,7 @@ class _InsetNote extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final bg = theme.colorScheme.surfaceVariant;
+    final bg = theme.colorScheme.surfaceContainerHighest;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),

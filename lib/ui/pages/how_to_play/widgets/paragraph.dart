@@ -3,11 +3,14 @@ import 'package:flutter/material.dart';
 /// A single paragraph with sensible spacing.
 /// Use [Paragraph.text] for plain strings, or [Paragraph.spans] for mixed inline styles.
 class Paragraph extends StatelessWidget {
-  const Paragraph._(this.inlineSpans, {this.big = false, super.key})
-    : text = null;
+  const Paragraph._(this.inlineSpans, {super.key})
+    : text = null,
+      big = false; // ✅ ensure initialized
+
   const Paragraph.text(this.text, {super.key})
     : inlineSpans = null,
-      big = false;
+      big = false; // ✅ ensure initialized
+
   const Paragraph.spans(this.inlineSpans, {this.big = false, super.key})
     : text = null;
 

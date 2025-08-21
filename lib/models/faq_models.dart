@@ -1,5 +1,4 @@
 // lib/models/faq_models.dart
-import 'package:flutter/foundation.dart';
 
 enum FaqTipType { info, warning }
 
