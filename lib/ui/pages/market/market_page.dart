@@ -1,6 +1,8 @@
+// lib/ui/pages/market/market_page.dart
 import 'package:flutter/material.dart';
 import 'package:cbb_bluechips_mobile/models/market.dart';
 import 'package:cbb_bluechips_mobile/services/market/market_service.dart';
+import 'package:cbb_bluechips_mobile/services/auth/auth_scope.dart'; // << use AuthScope
 
 // widgets
 import 'widgets/widgets.dart';
@@ -16,20 +18,26 @@ class MarketPage extends StatefulWidget {
 enum _LoadStatus { loading, ready, error }
 
 class _MarketPageState extends State<MarketPage> {
-  final _service = const MarketService();
+  MarketService? _service;
   var _status = _LoadStatus.loading;
   var _matches = <Match>[];
+  bool _loadedOnce = false;
 
   @override
-  void initState() {
-    super.initState();
-    _load();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Build the service once using AuthScope (no provider)
+    _service ??= MarketService(AuthScope.of(context));
+    if (!_loadedOnce) {
+      _loadedOnce = true;
+      _load();
+    }
   }
 
   Future<void> _load() async {
     setState(() => _status = _LoadStatus.loading);
     try {
-      final res = await _service.getMarket();
+      final res = await _service!.getMarket();
       setState(() {
         _matches = res.matches;
         _status = _LoadStatus.ready;
@@ -65,19 +73,17 @@ class _MarketPageState extends State<MarketPage> {
         );
         break;
       case _LoadStatus.ready:
-        if (_matches.isEmpty) {
-          body = const Center(child: Text('No games to show'));
-        } else {
-          body = RefreshIndicator(
-            onRefresh: _load,
-            child: ListView.separated(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-              itemCount: _matches.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (_, i) => MatchCard(match: _matches[i]),
-            ),
-          );
-        }
+        body = _matches.isEmpty
+            ? const Center(child: Text('No games to show'))
+            : RefreshIndicator(
+                onRefresh: _load,
+                child: ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                  itemCount: _matches.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (_, i) => MatchCard(match: _matches[i]),
+                ),
+              );
         break;
     }
 

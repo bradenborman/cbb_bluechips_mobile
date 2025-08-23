@@ -1,7 +1,7 @@
+import 'package:cbb_bluechips_mobile/services/auth/auth_scope.dart';
 import 'package:flutter/material.dart';
 import '../../.././models/models.dart';
 import '../../../services/portfolio_service.dart';
-import 'package:cbb_bluechips_mobile/services/auth/auth_gate.dart'; // <-- add this
 
 // Aliased to avoid symbol collisions
 import 'widgets/overview_panel.dart' as ov;

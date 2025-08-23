@@ -1,4 +1,4 @@
-import 'package:cbb_bluechips_mobile/services/auth/auth_gate.dart';
+import 'package:cbb_bluechips_mobile/services/auth/auth_scope.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/account/account_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/how_to_play/how_to_play_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/leaderboard/leaderboard_page.dart';

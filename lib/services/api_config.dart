@@ -17,7 +17,5 @@ class ApiConfig {
     'API_USER_PASSWORD',
     defaultValue: 'pw_ZZ1ZP8wj0FWy1pvLbSamEzPwmOTwg4M0vJ1nmnMX',
   );
-
-  // Your hardcoded dev user id to fetch.
-  static const String devUserId = '5526';
+  
 }

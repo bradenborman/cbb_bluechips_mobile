@@ -1,3 +1,4 @@
+import 'package:cbb_bluechips_mobile/services/auth/auth_scope.dart';
 import 'package:flutter/material.dart';
 import '../../theme.dart';
 import 'package:cbb_bluechips_mobile/services/auth/auth_gate.dart';
@@ -14,14 +15,22 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage>
     with SingleTickerProviderStateMixin {
   final _form = GlobalKey<FormState>();
+  /*
   final _email = TextEditingController();
   final _password = TextEditingController();
+  */
+ // Harding creds for now to speeed up   
   bool _busyApple = false;
   bool _busyGoogle = false;
   bool _busyEmail = false;
   bool _showEmail = true; // keep open to drive email-based flow first -- toggle later once sso is added
   bool _isCreateMode = false; // NEW: toggle sign in vs create
   String? _error;
+
+  final _email = TextEditingController(text: 'bradenborman@hotmail.com');
+  final _password = TextEditingController(text: 'Borm0000\$\$');
+
+
 
   @override
   void dispose() {
