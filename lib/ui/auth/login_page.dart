@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../theme.dart';
 import 'package:cbb_bluechips_mobile/services/auth/auth_gate.dart';
+import 'package:cbb_bluechips_mobile/services/auth/auth_repository_api.dart'; // for error codes
 
 class LoginPage extends StatefulWidget {
   static const route = '/login';
@@ -18,7 +19,8 @@ class _LoginPageState extends State<LoginPage>
   bool _busyApple = false;
   bool _busyGoogle = false;
   bool _busyEmail = false;
-  bool _showEmail = false;
+  bool _showEmail = true; // keep open to drive email-based flow first -- toggle later once sso is added
+  bool _isCreateMode = false; // NEW: toggle sign in vs create
   String? _error;
 
   @override
@@ -35,7 +37,7 @@ class _LoginPageState extends State<LoginPage>
       _error = null;
     });
     try {
-      await auth.signInWithApple(); // stubbed 8h session
+      await auth.signInWithApple();
     } catch (e) {
       setState(() => _error = e.toString());
     } finally {
@@ -50,7 +52,7 @@ class _LoginPageState extends State<LoginPage>
       _error = null;
     });
     try {
-      await auth.signInWithGoogle(); // stubbed 8h session
+      await auth.signInWithGoogle();
     } catch (e) {
       setState(() => _error = e.toString());
     } finally {
@@ -65,13 +67,26 @@ class _LoginPageState extends State<LoginPage>
       _busyEmail = true;
       _error = null;
     });
+
     try {
-      await auth.signIn(_email.text.trim(), _password.text);
+      if (_isCreateMode) {
+        await auth.createAccount(_email.text.trim(), _password.text);
+      } else {
+        await auth.signIn(_email.text.trim(), _password.text);
+      }
     } catch (e) {
-      setState(() => _error = e.toString());
+      final msg = _humanizeError(e);
+      setState(() => _error = msg);
     } finally {
       if (mounted) setState(() => _busyEmail = false);
     }
+  }
+
+  String _humanizeError(Object e) {
+    if (e is AuthError) return e.message;
+    final s = e.toString();
+    if (s.contains('HandshakeException')) return 'Network/SSL error.';
+    return 'Something went wrong. Please try again.';
   }
 
   @override
@@ -100,19 +115,21 @@ class _LoginPageState extends State<LoginPage>
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
-                    'Welcome back',
+                    _isCreateMode ? 'Create your account' : 'Welcome back',
                     style: t.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w800,
                     ),
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Choose how you want to sign in.',
+                    _isCreateMode
+                        ? 'Enter your email and a password to get started.'
+                        : 'Choose how you want to sign in.',
                     style: t.textTheme.bodyMedium?.copyWith(
                       color: onSurface.withOpacity(0.7),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
                   if (_error != null)
                     Container(
@@ -128,112 +145,110 @@ class _LoginPageState extends State<LoginPage>
                       ),
                     ),
 
-                  // Apple (primary — stub)
-                  SizedBox(
-                    height: 48,
-                    child: FilledButton.icon(
-                      onPressed: _busyApple ? null : _appleSignIn,
-                      icon: const Text('', style: TextStyle(fontSize: 20)),
-                      label: _busyApple
-                          ? const SizedBox(
-                              height: 18,
-                              width: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Sign in with Apple'),
-                      style: FilledButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  // Google (stub) — white background, outlined style
-                  SizedBox(
-                    height: 48,
-                    child: OutlinedButton.icon(
-                      onPressed: _busyGoogle ? null : _googleSignIn,
-                      icon: _GoogleLogo(), // asset with graceful fallback
-                      label: _busyGoogle
-                          ? const SizedBox(
-                              height: 18,
-                              width: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Sign in with Google'),
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        side: BorderSide(color: onSurface.withOpacity(0.12)),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  // Divider with "or"
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Divider(
-                          color: onSurface.withOpacity(0.15),
-                          height: 1,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: Text(
-                          'or',
-                          style: t.textTheme.bodySmall?.copyWith(
-                            color: onSurface.withOpacity(0.6),
+                  // SSO buttons (disabled for now, but UI stays)
+                  if (!_isCreateMode) ...[
+                    SizedBox(
+                      height: 48,
+                      child: FilledButton.icon(
+                        onPressed: _busyApple ? null : _appleSignIn,
+                        icon: const Text('', style: TextStyle(fontSize: 20)),
+                        label: _busyApple
+                            ? const SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text('Sign in with Apple'),
+                        style: FilledButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                       ),
-                      Expanded(
-                        child: Divider(
-                          color: onSurface.withOpacity(0.15),
-                          height: 1,
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 48,
+                      child: OutlinedButton.icon(
+                        onPressed: _busyGoogle ? null : _googleSignIn,
+                        icon: _GoogleLogo(),
+                        label: _busyGoogle
+                            ? const SizedBox(
+                                height: 18,
+                                width: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text('Sign in with Google'),
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          side: BorderSide(color: onSurface.withOpacity(0.12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
-                    ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Divider(
+                            color: onSurface.withOpacity(0.15),
+                            height: 1,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Text(
+                            'or',
+                            style: t.textTheme.bodySmall?.copyWith(
+                              color: onSurface.withOpacity(0.6),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Divider(
+                            color: onSurface.withOpacity(0.15),
+                            height: 1,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+
+                  const SizedBox(height: 12),
+
+                  // Email form (always visible to drive primary flow)
+                  _EmailForm(
+                    formKey: _form,
+                    email: _email,
+                    password: _password,
+                    busy: _busyEmail,
+                    onSubmit: _emailSubmit,
+                    ctaText: _isCreateMode ? 'Create account' : 'Continue',
                   ),
 
                   const SizedBox(height: 12),
 
-                  // Toggle for email sign-in
-                  OutlinedButton.icon(
-                    onPressed: () => setState(() => _showEmail = !_showEmail),
-                    icon: const Icon(Icons.email_outlined),
-                    label: Text(
-                      _showEmail ? 'Hide email sign in' : 'Sign in with Email',
+                  // Mode switch
+                  TextButton(
+                    onPressed: _busyEmail
+                        ? null
+                        : () {
+                            setState(() {
+                              _isCreateMode = !_isCreateMode;
+                              _error = null;
+                            });
+                          },
+                    child: Text(
+                      _isCreateMode
+                          ? 'Already have an account? Sign in'
+                          : 'New here? Create an account',
                     ),
-                    style: OutlinedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-
-                  // Expandable email form
-                  AnimatedSize(
-                    duration: const Duration(milliseconds: 220),
-                    curve: Curves.easeInOut,
-                    child: _showEmail
-                        ? Padding(
-                            padding: const EdgeInsets.only(top: 12),
-                            child: _EmailForm(
-                              formKey: _form,
-                              email: _email,
-                              password: _password,
-                              busy: _busyEmail,
-                              onSubmit: _emailSubmit,
-                            ),
-                          )
-                        : const SizedBox.shrink(),
                   ),
 
                   const Spacer(),
@@ -241,7 +256,7 @@ class _LoginPageState extends State<LoginPage>
                   Opacity(
                     opacity: 0.6,
                     child: Text(
-                      'Mock auth — no network used. Session persists for 8 hours.',
+                      'Email & password auth. Apple/Google coming soon.',
                       textAlign: TextAlign.center,
                       style: t.textTheme.bodySmall,
                     ),
@@ -259,7 +274,6 @@ class _LoginPageState extends State<LoginPage>
 class _GoogleLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Try to load asset; if missing, fall back to a generic icon
     return Image.asset(
       'assets/icons/google_g.png',
       width: 20,
@@ -275,6 +289,7 @@ class _EmailForm extends StatelessWidget {
   final TextEditingController password;
   final bool busy;
   final VoidCallback onSubmit;
+  final String ctaText;
 
   const _EmailForm({
     required this.formKey,
@@ -282,6 +297,7 @@ class _EmailForm extends StatelessWidget {
     required this.password,
     required this.busy,
     required this.onSubmit,
+    required this.ctaText,
   });
 
   @override
@@ -334,7 +350,7 @@ class _EmailForm extends StatelessWidget {
                       width: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Continue'),
+                  : Text(ctaText),
             ),
           ),
           const SizedBox(height: 8),

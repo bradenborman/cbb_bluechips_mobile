@@ -1,3 +1,5 @@
+//libs/services/auth/auth_gate.dart
+
 import 'package:cbb_bluechips_mobile/ui/app_shell.dart';
 import 'package:cbb_bluechips_mobile/ui/auth/login_page.dart';
 import 'package:flutter/material.dart';

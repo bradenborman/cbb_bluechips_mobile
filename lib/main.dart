@@ -1,4 +1,5 @@
 import 'package:cbb_bluechips_mobile/services/auth/auth_gate.dart';
+import 'package:cbb_bluechips_mobile/services/auth/auth_repository_api.dart' show AuthRepositoryApi;
 import 'package:cbb_bluechips_mobile/ui/pages/about/about_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/account/account_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/faq/faq_page.dart';
@@ -13,7 +14,6 @@ import 'ui/splash_screen.dart';
 import 'ui/app_shell.dart';
 import 'ui/section_stub.dart';
 
-import 'services/auth/auth_repository_mock.dart';
 import 'services/auth/auth_controller.dart';
 
 void main() {
@@ -30,7 +30,8 @@ class CbbBlueChipsApp extends StatefulWidget {
 
 class _CbbBlueChipsAppState extends State<CbbBlueChipsApp> {
   // Mock auth controller (no init/persistence in this version)
-  late final AuthController _auth = AuthController(AuthRepositoryMock());
+  late final AuthController _auth = AuthController(AuthRepositoryApi());
+
 
   // Navigator key so we can navigate without a BuildContext tied to a Navigator
   final GlobalKey<NavigatorState> _navKey = GlobalKey<NavigatorState>();

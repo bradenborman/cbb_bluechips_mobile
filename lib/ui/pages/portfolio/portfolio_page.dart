@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../.././models/models.dart';
 import '../../../services/portfolio_service.dart';
+import 'package:cbb_bluechips_mobile/services/auth/auth_gate.dart'; // <-- add this
 
 // Aliased to avoid symbol collisions
 import 'widgets/overview_panel.dart' as ov;
@@ -24,7 +25,6 @@ class _PortfolioPageState extends State<PortfolioPage> {
   Portfolio overview = Portfolio.empty;
   RequestStatus status = RequestStatus.loading;
 
-  // Quick Sell (temporarily disabled per design note)
   bool confirmingQuickSale = false;
   RequestStatus quickSaleStatus = RequestStatus.idle;
   QuickSellAllResponse quickSaleResponse = QuickSellAllResponse.empty;
@@ -34,8 +34,16 @@ class _PortfolioPageState extends State<PortfolioPage> {
   Future<void> _fetchPortfolio() async {
     setState(() => status = RequestStatus.loading);
     try {
-      final o = await _svc.getOverview();
-      final inv = await _svc.getInvestments();
+      // pull the real userId from the auth scope
+      final uid = AuthScope.of(context, listen: false).currentUser?.userId;
+      if (uid == null || uid.isEmpty) {
+        setState(() => status = RequestStatus.error);
+        return;
+      }
+
+      final o = await _svc.getOverview(userId: uid);
+      final inv = await _svc.getInvestments(userId: uid);
+
       setState(() {
         overview = o;
         _investments = inv.usersInvestments;

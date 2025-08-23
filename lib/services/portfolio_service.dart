@@ -1,16 +1,14 @@
 import 'package:http/http.dart' as http;
 import '../models/models.dart';
-import 'api_config.dart';
 import 'http_client.dart';
 
 class PortfolioService {
   const PortfolioService();
 
-  Future<Portfolio> getOverview({String? userId}) async {
-    final uid = userId ?? ApiConfig.devUserId;
+  Future<Portfolio> getOverview({required String userId}) async {
     final http.Response res = await ApiHttp.get(
       '/api/portfolio/overview',
-      query: {'userId': uid},
+      query: {'userId': userId},
     );
     if (res.statusCode >= 200 && res.statusCode < 300) {
       return Portfolio.fromJson(decodeJson(res.body));
@@ -18,11 +16,10 @@ class PortfolioService {
     throw Exception('Overview failed: ${res.statusCode}');
   }
 
-  Future<PortfolioResponse> getInvestments({String? userId}) async {
-    final uid = userId ?? ApiConfig.devUserId;
+  Future<PortfolioResponse> getInvestments({required String userId}) async {
     final http.Response res = await ApiHttp.get(
       '/api/portfolio/investments',
-      query: {'userId': uid},
+      query: {'userId': userId},
     );
     if (res.statusCode >= 200 && res.statusCode < 300) {
       return PortfolioResponse.fromJson(decodeJson(res.body));
@@ -31,11 +28,10 @@ class PortfolioService {
   }
 
   /// Optional: wire to a "Quick Sell All" button later.
-  Future<QuickSellAllResponse> sellAll({String? userId}) async {
-    final uid = userId ?? ApiConfig.devUserId;
+  Future<QuickSellAllResponse> sellAll({required String userId}) async {
     final http.Response res = await ApiHttp.post(
       '/api/trade/sell-all',
-      query: {'userId': uid},
+      query: {'userId': userId},
     );
     if (res.statusCode >= 200 && res.statusCode < 300) {
       return QuickSellAllResponse.fromJson(decodeJson(res.body));

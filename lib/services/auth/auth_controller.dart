@@ -1,30 +1,33 @@
 import 'package:flutter/foundation.dart';
-import 'auth_repository_mock.dart';
+import 'auth_repository.dart';
 
-/// Controls the authentication state and bridges UI with the repository.
 class AuthController extends ChangeNotifier {
-  final AuthRepositoryMock _repo;
+  final IAuthRepository _repo;
 
   AuthController(this._repo) {
-    // Keep listening to repo changes
     _repo.onAuthStateChanged.listen((_) => notifyListeners());
   }
 
   bool get isAuthed => _repo.currentUser != null;
-  MockUser? get currentUser => _repo.currentUser;
-
-  Future<void> signInWithApple() async {
-    await _repo.signInWithApple();
-    notifyListeners();
-  }
-
-  Future<void> signInWithGoogle() async {
-    await _repo.signInWithGoogle();
-    notifyListeners();
-  }
+  AppUser? get currentUser => _repo.currentUser;
 
   Future<void> signIn(String email, String password) async {
-    await _repo.signInWithEmail(email, password);
+    await _repo.signIn(email, password);
+    notifyListeners();
+  }
+
+  Future<void> createAccount(
+    String email,
+    String password, {
+    String? firstName,
+    String? lastName,
+  }) async {
+    await _repo.createAccount(
+      email: email,
+      password: password,
+      firstName: firstName,
+      lastName: lastName,
+    );
     notifyListeners();
   }
 
@@ -32,6 +35,13 @@ class AuthController extends ChangeNotifier {
     await _repo.signOut();
     notifyListeners();
   }
+
+  // SSO later:
+  Future<void> signInWithApple() async =>
+      throw UnimplementedError('Apple SSO later');
+
+  Future<void> signInWithGoogle() async =>
+      throw UnimplementedError('Google SSO later');
 
   @override
   void dispose() {
