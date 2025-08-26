@@ -16,6 +16,7 @@
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		A7CC0CE7224ACA7E1B223721 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DECD6653E4EF4D44997141D /* Pods_RunnerTests.framework */; };
 		DC793E60B864C25064C14667 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 858372E81E5FEEEA55923E8B /* Pods_Runner.framework */; };
+		DEC32CC72E5E6E6C00192812 /* client_646077869401-qeua40l97a1412au4utla3s3jsog148c.apps.googleusercontent.com 2.plist in Resources */ = {isa = PBXBuildFile; fileRef = DEC32CC62E5E6E6C00192812 /* client_646077869401-qeua40l97a1412au4utla3s3jsog148c.apps.googleusercontent.com 2.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +65,7 @@
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		DEC32CC62E5E6E6C00192812 /* client_646077869401-qeua40l97a1412au4utla3s3jsog148c.apps.googleusercontent.com 2.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "client_646077869401-qeua40l97a1412au4utla3s3jsog148c.apps.googleusercontent.com 2.plist"; sourceTree = "<group>"; };
 		EE07CBDCCD30D7F3E416813A /* Pods-RunnerTests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -151,6 +153,7 @@
 				1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */,
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
+				DEC32CC62E5E6E6C00192812 /* client_646077869401-qeua40l97a1412au4utla3s3jsog148c.apps.googleusercontent.com 2.plist */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -198,6 +201,7 @@
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				2695CA275FB247A05D70AF6A /* [CP] Embed Pods Frameworks */,
+				3CE384D16FE9C85E1780A393 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -260,6 +264,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
+				DEC32CC72E5E6E6C00192812 /* client_646077869401-qeua40l97a1412au4utla3s3jsog148c.apps.googleusercontent.com 2.plist in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
@@ -301,6 +306,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin";
+		};
+		3CE384D16FE9C85E1780A393 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources.sh\"\n";
+			showEnvVarsInLog = 0;
 		};
 		81E306EBE6D00B093B1BEBF7 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
