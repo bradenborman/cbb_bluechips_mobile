@@ -1,4 +1,7 @@
+// lib/ui/pages/account/widgets/forms/full_name_form.dart
 import 'package:flutter/material.dart';
+import 'package:cbb_bluechips_mobile/services/http_client.dart' show ApiHttp;
+import 'package:cbb_bluechips_mobile/services/auth/auth_scope.dart';
 
 class FullNameForm extends StatefulWidget {
   final String initialFirst;
@@ -32,13 +35,50 @@ class _FullNameFormState extends State<FullNameForm> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+
+    // get userId from your auth scope
+    final auth = AuthScope.of(context, listen: false) as dynamic;
+    final String userId =
+        auth.currentUser?.userId ??
+        auth.currentUser?.id ??
+        auth.currentUser?.uid ??
+        auth.userId ??
+        auth.currentUserId ??
+        '';
+
+    if (userId.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Missing user id')));
+      return;
+    }
+
     setState(() => _submitting = true);
     try {
-      await Future.delayed(const Duration(milliseconds: 400)); // TODO wire API
+      final res = await ApiHttp.put(
+        '/api/admin/users',
+        body: {
+          'userId': userId,
+          'firstName': _first.text.trim(),
+          'lastName': _last.text.trim(),
+          // You can include 'email', 'vip', 'userRole' if you choose,
+          // but they’re optional for this update per the spec.
+        },
+      );
+
+      if (res.statusCode < 200 || res.statusCode >= 300) {
+        throw StateError('HTTP ${res.statusCode}');
+      }
+
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Name updated')));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to update: $e')));
     } finally {
       if (mounted) setState(() => _submitting = false);
     }

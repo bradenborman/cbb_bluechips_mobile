@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:cbb_bluechips_mobile/models/models.dart';
+import 'package:cbb_bluechips_mobile/services/auth/auth_scope.dart';
+import 'package:cbb_bluechips_mobile/services/http_client.dart' show ApiHttp;
 import 'package:flutter/material.dart';
+
 import 'models.dart';
 import 'widgets/settings_section.dart';
 import 'widgets/user_profile_header.dart';
@@ -14,7 +19,6 @@ import 'widgets/forms/delete_google_account_form.dart';
 class AccountPage extends StatefulWidget {
   static const route = '/account';
   const AccountPage({super.key});
-
   @override
   State<AccountPage> createState() => _AccountPageState();
 }
@@ -32,17 +36,31 @@ class _AccountPageState extends State<AccountPage> {
   Future<void> _fetchAccount() async {
     setState(() => _status = RequestStatus.loading);
     try {
-      await Future.delayed(const Duration(milliseconds: 400));
-      const mock = UserAccount(
-        firstName: 'Braden',
-        lastName: 'Borman',
-        email: 'braden@example.com',
-        providers: [SignInProvider.google],
-        imageUrl: null,
-        displayNameStrategy: DisplayNameStrategy.firstLast,
-      );
+      // Pull userId from AuthScope without assuming exact shape
+      final auth = AuthScope.of(context, listen: false) as dynamic;
+      final String userId =
+          auth.currentUser?.userId ??
+          auth.currentUser?.id ??
+          auth.currentUser?.uid ??
+          auth.userId ??
+          auth.currentUserId ??
+          '';
+
+      if (userId.isEmpty) {
+        throw StateError('Missing userId for account request.');
+      }
+
+      // GET /api/user/account/{userId}
+      final res = await ApiHttp.get('/api/user/account/$userId');
+      if (res.statusCode < 200 || res.statusCode >= 300) {
+        throw StateError('HTTP ${res.statusCode}');
+      }
+
+      final Map<String, dynamic> json =
+          jsonDecode(res.body) as Map<String, dynamic>;
+
       setState(() {
-        _account = mock;
+        _account = UserAccount.fromJson(json);
         _status = RequestStatus.idle;
       });
     } catch (_) {
@@ -91,7 +109,7 @@ class _AccountPageState extends State<AccountPage> {
                       initialFirst: _account!.firstName,
                       initialLast: _account!.lastName,
                     ),
-                  ),        
+                  ),
                   SettingsSection(
                     title: 'Display Name',
                     subtitle:
@@ -130,8 +148,8 @@ class _AccountPageState extends State<AccountPage> {
         );
         break;
       case RequestStatus.success:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        body = const SizedBox.shrink();
+        break;
     }
 
     return Scaffold(
