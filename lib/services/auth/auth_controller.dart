@@ -36,12 +36,13 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // SSO later:
   Future<void> signInWithApple() async =>
       throw UnimplementedError('Apple SSO later');
 
-  Future<void> signInWithGoogle() async =>
-      throw UnimplementedError('Google SSO later');
+  Future<void> signInWithGoogle() async {
+    await _repo.signInWithGoogleDevice();
+    notifyListeners();
+  }
 
   @override
   void dispose() {

@@ -1,4 +1,3 @@
-// lib/services/auth/auth_scope.dart
 import 'package:flutter/widgets.dart';
 import 'auth_controller.dart';
 
@@ -9,7 +8,6 @@ class AuthScope extends InheritedNotifier<AuthController> {
     required super.child,
   }) : super(notifier: controller);
 
-  /// Use listen=false for initState/setup contexts.
   static AuthController of(BuildContext context, {bool listen = true}) {
     final scope = listen
         ? context.dependOnInheritedWidgetOfExactType<AuthScope>()

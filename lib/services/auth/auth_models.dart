@@ -1,6 +1,3 @@
-//libs/services/auth/auth_models.dart
-
-
 import 'package:flutter/foundation.dart';
 
 @immutable

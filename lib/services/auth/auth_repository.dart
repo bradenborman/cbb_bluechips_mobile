@@ -47,6 +47,8 @@ abstract class IAuthRepository {
     String? lastName,
   });
 
+  Future<AppUser> signInWithGoogleDevice();
+
   Future<void> signOut();
   void dispose();
 }
