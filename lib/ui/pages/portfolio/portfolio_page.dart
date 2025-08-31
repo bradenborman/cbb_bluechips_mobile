@@ -95,13 +95,17 @@ class _PortfolioPageState extends State<PortfolioPage> {
                     if (status == RequestStatus.error) {
                       return const Padding(
                         padding: EdgeInsets.all(12),
-                        child: ErrorBlock(text: 'Unable to load your portfolio.'),
+                        child: ErrorBlock(
+                          text: 'Unable to load your portfolio.',
+                        ),
                       );
                     }
 
                     // Use userId as a safe display token (AppUser may not have firstName)
-                    final appUser =
-                        AuthScope.of(context, listen: false).currentUser;
+                    final appUser = AuthScope.of(
+                      context,
+                      listen: false,
+                    ).currentUser;
                     final displayName = appUser?.displayName ?? 'Player';
 
                     return SnapshotCard(
@@ -125,14 +129,15 @@ class _PortfolioPageState extends State<PortfolioPage> {
                   padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
                   child: il.InvestmentList(
                     items: _investments,
-                    abbrevOnly: true, // show 2-letter ticker to avoid truncation
-                    showSeed: false,   // keep seed for Trade page instead
+                    abbrevOnly:
+                        true, // show 2-letter ticker to avoid truncation
+                    showSeed: false, // keep seed for Trade page instead
                     onTap: (inv) {
                       // Navigate to Trade screen (existing route/args)
                       Navigator.pushNamed(
                         context,
                         '/trade',
-                        arguments: {'teamId': inv.teamId},
+                        arguments: {'teamId': inv.teamId, 'from': 'portfolio'},
                       );
                     },
                   ),
@@ -197,9 +202,8 @@ class SectionCard extends StatelessWidget {
                       Text(
                         trailing!,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color:
-                                  scheme.onSurface.withValues(alpha: 0.7),
-                            ),
+                          color: scheme.onSurface.withValues(alpha: 0.7),
+                        ),
                       ),
                   ],
                 ),

@@ -7,6 +7,7 @@ import 'package:cbb_bluechips_mobile/ui/pages/leaderboard/leaderboard_page.dart'
 import 'package:cbb_bluechips_mobile/ui/pages/settings/settings_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/support/support_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/transactions/transactions_page.dart';
+import 'package:cbb_bluechips_mobile/ui/pages/trade/trade_page.dart'; // <- real widget
 import 'package:flutter/material.dart';
 
 import 'theme.dart';
@@ -75,6 +76,7 @@ class _CbbBlueChipsAppState extends State<CbbBlueChipsApp> {
         SettingsPage.route: (_) => const SettingsPage(),
         AboutPage.route: (_) => const AboutPage(),
         LeaderboardPage.route: (_) => const LeaderboardPage(),
+        TradePage.route: (_) => const TradePage(),
 
         // Calculator still using a stub for now
         '/calculator': (_) => const SectionStub(title: 'Calculator'),
@@ -82,3 +84,6 @@ class _CbbBlueChipsAppState extends State<CbbBlueChipsApp> {
     );
   }
 }
+
+// NOTE: (removed dummy `class TradePage {}`)
+// The real TradePage widget comes from ui/pages/trade/trade_page.dart
