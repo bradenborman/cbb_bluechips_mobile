@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import '../../.././models/models.dart';
 import '../../../services/portfolio_service.dart';
 
-// Aliased to avoid symbol collisions
-import 'widgets/overview_panel.dart' as ov;
-import 'widgets/investment_list.dart' as il;
-
+// Keep existing widgets for reuse
 import 'widgets/loading_block.dart';
 import 'widgets/error_block.dart';
-import 'widgets/portfolio_field.dart';
+import 'widgets/investment_list.dart' as il;
+
+// New combined snapshot card
+import 'widgets/snapshot_card.dart';
 
 class PortfolioPage extends StatefulWidget {
   static const route = '/portfolio';
@@ -85,57 +85,39 @@ class _PortfolioPageState extends State<PortfolioPage> {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              // 1) Snapshot (no thin rule)
+              // Combined Snapshot (rank/name + balances in one bordered card)
               SectionCard(
-                child: ov.OverviewPanel(
-                  leaderboardPosition: overview.leaderboardPosition,
-                  username: 'Braden', // wire to auth when ready
-                  totalPoints: overview.totalNetWorth,
-                  status: status,
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // 2) Summary
-              SectionCard(
-                title: 'Summary',
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                  child: Builder(
-                    builder: (context) {
-                      if (status == RequestStatus.loading) {
-                        return const LoadingBlock();
-                      }
-                      if (status == RequestStatus.error) {
-                        return const ErrorBlock(
-                          text: 'Unable to load your portfolio.',
-                        );
-                      }
-                      return Column(
-                        children: [
-                          PortfolioField(
-                            label: 'Available Points',
-                            value: overview.availableNetWorth,
-                          ),
-                          _thinDivider(context),
-                          PortfolioField(
-                            label: 'Invested Points',
-                            value: overview.investmentsTotal,
-                          ),
-                          _thinDivider(context),
-                          PortfolioField(
-                            label: 'Predictions',
-                            value: overview.predictionsTotal,
-                          ),
-                        ],
+                child: Builder(
+                  builder: (context) {
+                    if (status == RequestStatus.loading) {
+                      return const LoadingBlock();
+                    }
+                    if (status == RequestStatus.error) {
+                      return const Padding(
+                        padding: EdgeInsets.all(12),
+                        child: ErrorBlock(text: 'Unable to load your portfolio.'),
                       );
-                    },
-                  ),
+                    }
+
+                    // Use userId as a safe display token (AppUser may not have firstName)
+                    final appUser =
+                        AuthScope.of(context, listen: false).currentUser;
+                    final displayName = appUser?.displayName ?? 'Player';
+
+                    return SnapshotCard(
+                      leaderboardPosition: overview.leaderboardPosition,
+                      displayName: displayName,
+                      totalPoints: overview.totalNetWorth,
+                      availablePoints: overview.availableNetWorth,
+                      investedPoints: overview.investmentsTotal,
+                      predictionsPoints: overview.predictionsTotal,
+                    );
+                  },
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 30),
 
-              // 3) Investments (header with total on the right)
+              // Investments
               SectionCard(
                 title: 'Investments',
                 trailing: _fmt(overview.investmentsTotal),
@@ -143,8 +125,10 @@ class _PortfolioPageState extends State<PortfolioPage> {
                   padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
                   child: il.InvestmentList(
                     items: _investments,
+                    abbrevOnly: true, // show 2-letter ticker to avoid truncation
+                    showSeed: false,   // keep seed for Trade page instead
                     onTap: (inv) {
-                      // Navigate to Trade screen (adjust route/args if your app differs)
+                      // Navigate to Trade screen (existing route/args)
                       Navigator.pushNamed(
                         context,
                         '/trade',
@@ -162,15 +146,6 @@ class _PortfolioPageState extends State<PortfolioPage> {
       ),
     );
   }
-
-  Widget _thinDivider(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 6),
-    child: Divider(
-      thickness: 0.75,
-      height: 0,
-      color: Theme.of(context).dividerColor.withOpacity(0.6),
-    ),
-  );
 }
 
 /// Reusable rounded card with subtle outline, optional title and trailing text.
@@ -192,7 +167,7 @@ class SectionCard extends StatelessWidget {
     final shape = RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(16),
     );
-    final borderColor = scheme.outlineVariant.withOpacity(0.5);
+    final borderColor = scheme.outlineVariant.withValues(alpha: 0.5);
 
     return Material(
       elevation: 1,
@@ -222,8 +197,9 @@ class SectionCard extends StatelessWidget {
                       Text(
                         trailing!,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: scheme.onSurface.withOpacity(0.7),
-                        ),
+                              color:
+                                  scheme.onSurface.withValues(alpha: 0.7),
+                            ),
                       ),
                   ],
                 ),
