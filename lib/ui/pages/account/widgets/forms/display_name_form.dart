@@ -9,11 +9,16 @@ class DisplayNameForm extends StatefulWidget {
   final String lastName;
   final DisplayNameStrategy strategy;
 
+  /// Optional callback invoked after a successful save so the parent
+  /// (AccountPage) can refresh or optimistically update.
+  final void Function(DisplayNameStrategy newStrategy)? onSaved;
+
   const DisplayNameForm({
     super.key,
     required this.firstName,
     required this.lastName,
     required this.strategy,
+    this.onSaved,
   });
 
   @override
@@ -25,6 +30,15 @@ enum _Kind { full, firstAbbrev, lastAbbrev, handle }
 class _DisplayNameFormState extends State<DisplayNameForm> {
   late DisplayNameStrategy _strategy = widget.strategy;
   bool _submitting = false;
+
+  @override
+  void didUpdateWidget(covariant DisplayNameForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // If parent provides a different strategy later, reflect it.
+    if (oldWidget.strategy != widget.strategy) {
+      _strategy = widget.strategy;
+    }
+  }
 
   String _enumName(DisplayNameStrategy v) =>
       v.toString().split('.').last; // raw enum case name
@@ -73,7 +87,6 @@ class _DisplayNameFormState extends State<DisplayNameForm> {
     }
   }
 
-  // Map your enum to what the API actually accepts.
   // API supports: FULL, FIRST_ABBREVIATED, LAST_ABBREVIATED
   String _apiValue(DisplayNameStrategy v) {
     switch (_kindFor(v)) {
@@ -85,11 +98,10 @@ class _DisplayNameFormState extends State<DisplayNameForm> {
         return 'LAST_ABBREVIATED';
       case _Kind.handle:
         // Not supported by API
-        return 'FULL'; // safe fallback if you prefer; or block in _save()
+        return 'FULL'; // fallback if needed
     }
   }
 
-  // Try to grab userId from your AuthScope without relying on an exact field name.
   String _userIdFromScope(BuildContext context) {
     final auth = AuthScope.of(context, listen: false) as dynamic;
     return auth.currentUser?.userId ??
@@ -129,6 +141,10 @@ class _DisplayNameFormState extends State<DisplayNameForm> {
         throw StateError('HTTP ${res.statusCode}');
       }
       if (!mounted) return;
+
+      // Fire callback so parent can refresh state/UI.
+      widget.onSaved?.call(_strategy);
+
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Display name updated')));
@@ -144,7 +160,7 @@ class _DisplayNameFormState extends State<DisplayNameForm> {
 
   @override
   Widget build(BuildContext context) {
-    final values = DisplayNameStrategy.values; // uses your real enum
+    final values = DisplayNameStrategy.values; // your real enum
 
     return Column(
       children: [

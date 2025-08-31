@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:cbb_bluechips_mobile/models/models.dart';
 import 'package:cbb_bluechips_mobile/services/auth/auth_scope.dart';
 import 'package:cbb_bluechips_mobile/services/http_client.dart' show ApiHttp;
@@ -50,8 +49,12 @@ class _AccountPageState extends State<AccountPage> {
         throw StateError('Missing userId for account request.');
       }
 
-      // GET /api/user/account/{userId}
-      final res = await ApiHttp.get('/api/user/account/$userId');
+      // IMPORTANT: cache-bust so we never read a stale snapshot
+      final res = await ApiHttp.get(
+        '/api/user/account/$userId',
+        query: {'_': DateTime.now().millisecondsSinceEpoch.toString()},
+      );
+
       if (res.statusCode < 200 || res.statusCode >= 300) {
         throw StateError('HTTP ${res.statusCode}');
       }
@@ -94,7 +97,9 @@ class _AccountPageState extends State<AccountPage> {
           body = const SizedBox.shrink();
           break;
         }
+
         final showCredentialsFlows = _hasProvider(SignInProvider.credentials);
+
         body = Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -103,13 +108,27 @@ class _AccountPageState extends State<AccountPage> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
+                  // Name
                   SettingsSection(
                     title: 'Name',
                     child: FullNameForm(
                       initialFirst: _account!.firstName,
                       initialLast: _account!.lastName,
+                      // Optimistically update local state on success
+                      onSaved: (first, last) {
+                        setState(() {
+                          _account = _account!.copyWith(
+                            firstName: first,
+                            lastName: last,
+                          );
+                        });
+                        // Optional: do a fresh read in background to sync other fields
+                        _fetchAccount();
+                      },
                     ),
                   ),
+
+                  // Display name
                   SettingsSection(
                     title: 'Display Name',
                     subtitle:
@@ -118,8 +137,11 @@ class _AccountPageState extends State<AccountPage> {
                       firstName: _account!.firstName,
                       lastName: _account!.lastName,
                       strategy: _account!.displayNameStrategy,
+                      // If your DisplayNameForm also persists, you can similarly refresh:
+                      onSaved: (_) => _fetchAccount(),
                     ),
                   ),
+
                   if (showCredentialsFlows)
                     const SettingsSection(
                       title: 'Update Password',
@@ -133,6 +155,7 @@ class _AccountPageState extends State<AccountPage> {
                           'You signed in with Google so your account does not have a password yet.',
                       child: PasswordCreateForm(),
                     ),
+
                   SettingsSection.danger(
                     title: 'Delete Account',
                     subtitle:
@@ -147,6 +170,7 @@ class _AccountPageState extends State<AccountPage> {
           ],
         );
         break;
+
       case RequestStatus.success:
         body = const SizedBox.shrink();
         break;
