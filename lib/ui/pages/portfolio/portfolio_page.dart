@@ -30,6 +30,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
   QuickSellAllResponse quickSaleResponse = QuickSellAllResponse.empty;
 
   List<Investment> _investments = const [];
+  String _displayName = 'Player';
 
   Future<void> _fetchPortfolio() async {
     setState(() => status = RequestStatus.loading);
@@ -41,12 +42,25 @@ class _PortfolioPageState extends State<PortfolioPage> {
         return;
       }
 
+      // Fetch everything (sequential for simplicity/safety)
       final o = await _svc.getOverview(userId: uid);
       final inv = await _svc.getInvestments(userId: uid);
+
+      // Get the canonical display name from your API (not from Google token)
+      String name;
+      try {
+        name = await _svc.getUserDisplayName(userId: uid);
+      } catch (_) {
+        // Soft-fallback to whatever auth has if API name fails
+        name =
+            (AuthScope.of(context, listen: false).currentUser?.displayName ??
+            'Player');
+      }
 
       setState(() {
         overview = o;
         _investments = inv.usersInvestments;
+        _displayName = name;
         status = RequestStatus.success;
       });
     } catch (e) {
@@ -101,16 +115,9 @@ class _PortfolioPageState extends State<PortfolioPage> {
                       );
                     }
 
-                    // Use userId as a safe display token (AppUser may not have firstName)
-                    final appUser = AuthScope.of(
-                      context,
-                      listen: false,
-                    ).currentUser;
-                    final displayName = appUser?.displayName ?? 'Player';
-
                     return SnapshotCard(
                       leaderboardPosition: overview.leaderboardPosition,
-                      displayName: displayName,
+                      displayName: _displayName,
                       totalPoints: overview.totalNetWorth,
                       availablePoints: overview.availableNetWorth,
                       investedPoints: overview.investmentsTotal,

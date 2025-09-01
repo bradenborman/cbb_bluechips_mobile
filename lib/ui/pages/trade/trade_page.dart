@@ -86,10 +86,6 @@ class _TradePageState extends State<TradePage> {
     }
   }
 
-  num _calcCost(TeamTradeDetailsResponse d, int qty) {
-    return d.currentMarketPrice * qty;
-  }
-
   String _fmt(num v) {
     final s = v.toInt().toString();
     final b = StringBuffer();

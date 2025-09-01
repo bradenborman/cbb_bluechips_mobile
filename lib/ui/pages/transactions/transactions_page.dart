@@ -1,6 +1,7 @@
+import 'package:cbb_bluechips_mobile/services/transaction_service.dart';
 import 'package:flutter/material.dart';
 import 'models.dart';
-import 'transactions_service.dart';
+
 import 'widgets/transaction_created_at.dart';
 import 'widgets/transaction_list_header.dart';
 import 'widgets/transaction_row.dart';
