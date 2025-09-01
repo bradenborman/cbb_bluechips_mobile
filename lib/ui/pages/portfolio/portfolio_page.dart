@@ -120,9 +120,7 @@ class _PortfolioPageState extends State<PortfolioPage> {
                       displayName: _displayName,
                       totalPoints: overview.totalNetWorth,
                       availablePoints: overview.availableNetWorth,
-                      investedPoints: overview.investmentsTotal,
-                      predictionsPoints: overview.predictionsTotal,
-                    );
+                      investedPoints: overview.investmentsTotal                    );
                   },
                 ),
               ),
@@ -136,16 +134,15 @@ class _PortfolioPageState extends State<PortfolioPage> {
                   padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
                   child: il.InvestmentList(
                     items: _investments,
-                    abbrevOnly:
-                        true, // show 2-letter ticker to avoid truncation
-                    showSeed: false, // keep seed for Trade page instead
-                    onTap: (inv) {
-                      // Navigate to Trade screen (existing route/args)
-                      Navigator.pushNamed(
+                    abbrevOnly: true,
+                    showSeed: false,
+                    onTap: (inv) async {
+                      await Navigator.pushNamed(
                         context,
                         '/trade',
                         arguments: {'teamId': inv.teamId, 'from': 'portfolio'},
                       );
+                      if (mounted) _fetchPortfolio(); // refresh on return
                     },
                   ),
                 ),

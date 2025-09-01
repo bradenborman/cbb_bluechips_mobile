@@ -110,7 +110,7 @@ class _InvestmentRow extends StatelessWidget {
 
     final price = inv.marketPrice;
     final shares = inv.amountOwned;
-    final total = (price is num ? price : price as num) * shares;
+    final total = price * shares;
 
     return InkWell(
       onTap: onTap == null ? null : () => onTap!(inv),

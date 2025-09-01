@@ -1,6 +1,7 @@
 // lib/main.dart
 import 'package:cbb_bluechips_mobile/ui/pages/about/about_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/account/account_page.dart';
+import 'package:cbb_bluechips_mobile/ui/pages/calculator/calculator_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/faq/faq_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/how_to_play/how_to_play_page.dart';
 import 'package:cbb_bluechips_mobile/ui/pages/leaderboard/leaderboard_page.dart';
@@ -13,7 +14,6 @@ import 'package:flutter/material.dart';
 import 'theme.dart';
 import 'ui/splash_screen.dart';
 import 'ui/app_shell.dart';
-import 'ui/section_stub.dart';
 import 'ui/auth/login_page.dart';
 
 import 'services/auth/auth_controller.dart';
@@ -77,13 +77,8 @@ class _CbbBlueChipsAppState extends State<CbbBlueChipsApp> {
         AboutPage.route: (_) => const AboutPage(),
         LeaderboardPage.route: (_) => const LeaderboardPage(),
         TradePage.route: (_) => const TradePage(),
-
-        // Calculator still using a stub for now
-        '/calculator': (_) => const SectionStub(title: 'Calculator'),
+       CalculatorPage.route: (_) => const CalculatorPage(),
       },
     );
   }
 }
-
-// NOTE: (removed dummy `class TradePage {}`)
-// The real TradePage widget comes from ui/pages/trade/trade_page.dart

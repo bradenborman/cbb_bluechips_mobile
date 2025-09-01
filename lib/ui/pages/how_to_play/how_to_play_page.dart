@@ -266,13 +266,11 @@ class _SectionCard extends StatelessWidget {
   const _SectionCard({
     required this.title,
     this.paragraphs,
-    this.bullets,
     this.children,
   });
 
   final String title;
   final List<String>? paragraphs;
-  final List<String>? bullets;
   final List<Widget>? children;
 
   @override
@@ -309,10 +307,6 @@ class _SectionCard extends StatelessWidget {
                   ),
                 ),
               ),
-            if (bullets != null) ...[
-              const SizedBox(height: 4),
-              ...bullets!.map((b) => _Bullet(text: b)),
-            ],
             if (children != null) ...children!,
           ],
         ),

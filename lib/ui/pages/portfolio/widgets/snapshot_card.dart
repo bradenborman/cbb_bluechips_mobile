@@ -6,7 +6,6 @@ class SnapshotCard extends StatelessWidget {
   final int totalPoints;
   final int availablePoints;
   final int investedPoints;
-  final int predictionsPoints;
 
   const SnapshotCard({
     super.key,
@@ -15,7 +14,6 @@ class SnapshotCard extends StatelessWidget {
     required this.totalPoints,
     required this.availablePoints,
     required this.investedPoints,
-    required this.predictionsPoints,
   });
 
   String _fmt(int p) {
@@ -113,32 +111,6 @@ class SnapshotCard extends StatelessWidget {
               ],
             ),
           ),
-
-          // Predictions section (with extra space above)
-          if (predictionsPoints > 0) ...[
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Icon(
-                  Icons.help_outline,
-                  size: 16,
-                  color: onSurface.withValues(alpha: 0.6),
-                ),
-                const SizedBox(width: 6),
-                Tooltip(
-                  message:
-                      'Unsettled Prop Bets: points tied up in prop bets that haven’t been decided yet.',
-                  child: Text(
-                    'USPB: ${_fmt(predictionsPoints)} pts',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: onSurface.withValues(alpha: 0.75),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
         ],
       ),
     );
