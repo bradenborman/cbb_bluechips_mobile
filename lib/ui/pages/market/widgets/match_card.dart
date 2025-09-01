@@ -50,7 +50,7 @@ class MatchCard extends StatelessWidget {
           // Home team row
           TeamRow(
             team: match.homeTeam,
-            onTap: () => _tapSnack(context, match.homeTeam.teamName),
+            onTap: () => _openTrade(context, match.homeTeam.teamId),
           ),
           const SizedBox(height: 6),
           SpreadPill(
@@ -73,7 +73,7 @@ class MatchCard extends StatelessWidget {
           // Away team row
           TeamRow(
             team: match.awayTeam,
-            onTap: () => _tapSnack(context, match.awayTeam.teamName),
+            onTap: () => _openTrade(context, match.awayTeam.teamId),
           ),
           const SizedBox(height: 6),
           SpreadPill(
@@ -87,13 +87,14 @@ class MatchCard extends StatelessWidget {
     );
   }
 
-  void _tapSnack(BuildContext context, String teamName) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Buy/Sell for $teamName coming next'),
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(milliseconds: 1200),
-      ),
+  void _openTrade(BuildContext context, String teamId) {
+    Navigator.pushNamed(
+      context,
+      '/trade',
+      arguments: {
+        'teamId': teamId,
+        'from': 'market', // TradePage defaults to BUY when not 'portfolio'
+      },
     );
   }
 }

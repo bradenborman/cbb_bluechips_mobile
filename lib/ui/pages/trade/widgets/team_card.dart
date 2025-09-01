@@ -55,6 +55,7 @@ class TradeTeamCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
+
           // Nickname (left) + Record (right)
           Row(
             children: [

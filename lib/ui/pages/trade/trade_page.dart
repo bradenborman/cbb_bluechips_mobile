@@ -97,6 +97,12 @@ class _TradePageState extends State<TradePage> {
     return b.toString();
   }
 
+  String _fmtSpread(num v) {
+    final dv = v.toDouble();
+    final whole = dv.truncateToDouble() == dv;
+    return whole ? dv.toStringAsFixed(0) : dv.toStringAsFixed(1);
+  }
+
   Future<void> _handleConfirm(int qty, bool isBuy) async {
     if (_d == null) return;
     final userId = AuthScope.of(context, listen: false).currentUser?.userId;
@@ -159,7 +165,10 @@ class _TradePageState extends State<TradePage> {
                 // TEAM CARD (name/seed/price/record)
                 TradeTeamCard(d: _d!, fmt: _fmt),
 
-                const SizedBox(height: 16),
+                // ◀── spread pill BETWEEN sections
+                const SizedBox(height: 10),
+                Center(child: _buildSpreadPill(context, _d!)),
+                const SizedBox(height: 10),
 
                 // TRADE SECTION (toggle + PP + MaxBuy + slider)
                 TradeSection(
@@ -201,6 +210,33 @@ class _TradePageState extends State<TradePage> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  // Centered pill used between sections 1 & 2
+  Widget _buildSpreadPill(BuildContext context, TeamTradeDetailsResponse d) {
+    final cs = Theme.of(context).colorScheme;
+
+    final hasSpread = d.pointSpread != null && d.favoriteTeamId != null;
+    final isFavorite = hasSpread ? (d.favoriteTeamId == d.teamId) : false;
+    final label = hasSpread
+        ? 'Spread ${isFavorite ? '-' : '+'}${_fmtSpread(d.pointSpread!)}'
+        : 'Spread N/A';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: cs.primaryContainer,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: cs.outlineVariant),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+          color: cs.onPrimaryContainer,
+          fontWeight: FontWeight.w800,
         ),
       ),
     );
