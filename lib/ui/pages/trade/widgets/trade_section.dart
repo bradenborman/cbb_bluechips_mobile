@@ -10,6 +10,12 @@ class TradeSection extends StatelessWidget {
   final int maxBuy; // precomputed by parent using price & rules
   final String Function(num) fmt;
 
+  /// Call back to parent to execute the trade.
+  final Future<void> Function(int qty, bool isBuy)? onConfirm;
+
+  /// Disable/Spinner state for the confirm button.
+  final bool isBusy;
+
   final ValueChanged<bool> onModeChanged;
   final ValueChanged<int> onQtyChanged;
 
@@ -23,6 +29,8 @@ class TradeSection extends StatelessWidget {
     required this.fmt,
     required this.onModeChanged,
     required this.onQtyChanged,
+    this.onConfirm,
+    this.isBusy = false,
   });
 
   num _calcCost(int q) => d.currentMarketPrice * q;
@@ -99,33 +107,32 @@ class TradeSection extends StatelessWidget {
           ),
           const SizedBox(height: 8),
 
-          // Material slider with integer divisions
+          // Integer slider
           Slider(
             value: qty.clamp(0, maxQty).toDouble(),
             min: 0,
             max: (maxQty > 0 ? maxQty : 1).toDouble(),
             divisions: maxQty > 0 ? maxQty : 1,
-            onChanged: disabledByLock
+            onChanged: (isBusy || disabledByLock)
                 ? null
                 : (v) => onQtyChanged(v.round().clamp(0, maxQty)),
           ),
 
           const SizedBox(height: 8),
 
-          // Place order (still a stub; parent can swap later)
+          // Confirm trade
           FilledButton(
-            onPressed: (disabledByLock || qty == 0)
+            onPressed:
+                (isBusy || disabledByLock || qty == 0 || onConfirm == null)
                 ? null
-                : () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          '$label $qty ${qty == 1 ? "share" : "shares"} of ${d.teamName} for ${fmt(cost)}',
-                        ),
-                      ),
-                    );
-                  },
-            child: Text('$label $qty ${qty == 1 ? "Share" : "Shares"}'),
+                : () => onConfirm!(qty, isBuyMode),
+            child: isBusy
+                ? const SizedBox(
+                    height: 18,
+                    width: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : Text('$label $qty ${qty == 1 ? "Share" : "Shares"}'),
           ),
 
           if (disabledByLock) ...[

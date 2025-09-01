@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cbb_bluechips_mobile/services/auth/auth_scope.dart';
 import 'package:cbb_bluechips_mobile/services/trade_service.dart';
 
-// NEW: split widgets
+// split widgets
 import 'widgets/team_card.dart';
 import 'widgets/trade_section.dart';
 import 'widgets/info_cards.dart';
@@ -23,6 +23,7 @@ class _TradePageState extends State<TradePage> {
   late bool _isBuyMode;
 
   bool _loading = true;
+  bool _submitting = false;
   String? _error;
   TeamTradeDetailsResponse? _d;
 
@@ -66,7 +67,8 @@ class _TradePageState extends State<TradePage> {
 
       final d = await _svc.getTradeDetails(userId: userId, teamId: _teamIdArg);
 
-      final maxBuy = _computeMaxBuy(d);
+      // Use API-provided maximumCanPurchase directly (treat negatives as 0 defensively)
+      final maxBuy = d.maximumCanPurchase < 0 ? 0 : d.maximumCanPurchase;
       final maxSell = d.amountSharesOwned;
       final max = _isBuyMode ? maxBuy : maxSell;
 
@@ -84,14 +86,6 @@ class _TradePageState extends State<TradePage> {
     }
   }
 
-  int _computeMaxBuy(TeamTradeDetailsResponse d) {
-    final price = d.currentMarketPrice.toDouble();
-    if (price <= 0) return 0;
-    final byCash = (d.purchasingPower / price).floor();
-    final byCap = (d.maximumCanPurchase).clamp(0, 1 << 30);
-    return byCash < byCap ? byCash : byCap;
-  }
-
   num _calcCost(TeamTradeDetailsResponse d, int qty) {
     return d.currentMarketPrice * qty;
   }
@@ -105,6 +99,43 @@ class _TradePageState extends State<TradePage> {
       if (idx > 1 && idx % 3 == 1) b.write(',');
     }
     return b.toString();
+  }
+
+  Future<void> _handleConfirm(int qty, bool isBuy) async {
+    if (_d == null) return;
+    final userId = AuthScope.of(context, listen: false).currentUser?.userId;
+    if (userId == null || userId.isEmpty) return;
+
+    setState(() => _submitting = true);
+    try {
+      final updated = isBuy
+          ? await _svc.buy(userId: userId, teamId: _teamIdArg, volume: qty)
+          : await _svc.sell(userId: userId, teamId: _teamIdArg, volume: qty);
+
+      // Recompute max directly from fresh API values
+      final maxBuy = updated.maximumCanPurchase < 0
+          ? 0
+          : updated.maximumCanPurchase;
+      final maxSell = updated.amountSharesOwned;
+      final newMax = _isBuyMode ? maxBuy : maxSell;
+
+      setState(() {
+        _d = updated;
+        _maxQty = newMax.clamp(0, 1000000);
+        _qty = 0; // reset slider after a successful trade
+      });
+
+      final verb = isBuy ? 'Bought' : 'Sold';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$verb $qty @ ${_fmt(_d!.currentMarketPrice)}')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Trade failed: $e')));
+    } finally {
+      if (mounted) setState(() => _submitting = false);
+    }
   }
 
   @override
@@ -140,10 +171,16 @@ class _TradePageState extends State<TradePage> {
                   isBuyMode: _isBuyMode,
                   qty: _qty,
                   maxQty: _maxQty,
-                  maxBuy: _computeMaxBuy(_d!),
+                  maxBuy: _d!.maximumCanPurchase < 0
+                      ? 0
+                      : _d!.maximumCanPurchase,
                   fmt: _fmt,
+                  isBusy: _submitting,
+                  onConfirm: _handleConfirm,
                   onModeChanged: (newBuy) {
-                    final maxBuy = _computeMaxBuy(_d!);
+                    final maxBuy = _d!.maximumCanPurchase < 0
+                        ? 0
+                        : _d!.maximumCanPurchase;
                     setState(() {
                       _isBuyMode = newBuy;
                       _maxQty = newBuy ? maxBuy : _d!.amountSharesOwned;

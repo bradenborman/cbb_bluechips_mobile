@@ -23,6 +23,44 @@ class TradeService {
       'Failed to load trade details: ${res.statusCode} ${res.body}',
     );
   }
+
+  /// POST /api/trade/buy
+  Future<TeamTradeDetailsResponse> buy({
+    required String userId,
+    required String teamId,
+    required int volume,
+    bool stealthBuy = false,
+  }) async {
+    final http.Response res = await ApiHttp.post(
+      '/api/trade/buy',
+      body: {
+        'userId': userId,
+        'teamId': teamId,
+        'volume': volume,
+        'stealthBuy': stealthBuy,
+      },
+    );
+    if (res.statusCode >= 200 && res.statusCode < 300) {
+      return TeamTradeDetailsResponse.fromJson(jsonDecode(res.body));
+    }
+    throw Exception('Buy failed: ${res.statusCode} ${res.body}');
+  }
+
+  /// POST /api/trade/sell
+  Future<TeamTradeDetailsResponse> sell({
+    required String userId,
+    required String teamId,
+    required int volume,
+  }) async {
+    final http.Response res = await ApiHttp.post(
+      '/api/trade/sell',
+      body: {'userId': userId, 'teamId': teamId, 'volume': volume},
+    );
+    if (res.statusCode >= 200 && res.statusCode < 300) {
+      return TeamTradeDetailsResponse.fromJson(jsonDecode(res.body));
+    }
+    throw Exception('Sell failed: ${res.statusCode} ${res.body}');
+  }
 }
 
 /// ======== MODELS (mapped to your API schema) ========
