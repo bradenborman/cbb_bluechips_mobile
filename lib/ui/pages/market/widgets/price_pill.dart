@@ -32,5 +32,5 @@ String _moneyInt(double v) {
     RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
     (m) => '${m[1]},',
   );
-  return '\$$withCommas';
+  return withCommas;
 }

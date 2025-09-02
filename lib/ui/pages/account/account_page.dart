@@ -109,6 +109,7 @@ class _AccountPageState extends State<AccountPage> {
                 padding: const EdgeInsets.all(16),
                 children: [
                   // Name
+                 /*
                   SettingsSection(
                     title: 'Name',
                     child: FullNameForm(
@@ -127,7 +128,7 @@ class _AccountPageState extends State<AccountPage> {
                       },
                     ),
                   ),
-
+*/
                   // Display name
                   SettingsSection(
                     title: 'Display Name',
