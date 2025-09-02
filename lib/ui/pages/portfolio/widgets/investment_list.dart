@@ -105,12 +105,11 @@ class _InvestmentRow extends StatelessWidget {
 
     // Chip tweaks: smaller and tighter
     final chipBg = Theme.of(context).colorScheme.surfaceContainerHigh;
-    final tickerColor =
-        _parseCssRgb(inv.primaryColor) ?? Theme.of(context).colorScheme.primary;
+    final tickerColor = _parseRgbCsv(inv.primaryColor) ?? Theme.of(context).colorScheme.primary;
 
     final price = inv.marketPrice;
     final shares = inv.amountOwned;
-    final total = price * shares;
+    final total = (price is num ? price : price as num) * shares;
 
     return InkWell(
       onTap: onTap == null ? null : () => onTap!(inv),
@@ -215,13 +214,14 @@ String _fmt(num v) {
   return b.toString();
 }
 
-/// Support CSS rgb(...) strings from the API
-Color? _parseCssRgb(String? css) {
-  if (css == null) return null;
-  final m = RegExp(r'rgb\((\d+),\s*(\d+),\s*(\d+)\)').firstMatch(css);
-  if (m == null) return null;
-  final r = int.parse(m.group(1)!);
-  final g = int.parse(m.group(2)!);
-  final b = int.parse(m.group(3)!);
+Color? _parseRgbCsv(String? csv) {
+  if (csv == null) return null;
+  final parts = csv.split(',');
+  if (parts.length < 3) return null;
+  int? toC(String s) => int.tryParse(s.trim())?.clamp(0, 255);
+  final r = toC(parts[0]);
+  final g = toC(parts[1]);
+  final b = toC(parts[2]);
+  if (r == null || g == null || b == null) return null;
   return Color.fromARGB(255, r, g, b);
 }

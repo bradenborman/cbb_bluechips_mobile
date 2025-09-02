@@ -5,8 +5,7 @@ import 'package:cbb_bluechips_mobile/models/market.dart';
 import 'package:cbb_bluechips_mobile/models/models.dart' show decodeJson;
 import 'package:cbb_bluechips_mobile/services/auth/auth_controller.dart';
 
-/// MarketService now requires an AuthController and always uses the authed user.
-/// No debug fallbacks.
+
 class MarketService {
   final AuthController auth;
 
